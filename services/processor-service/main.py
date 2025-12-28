@@ -1,5 +1,5 @@
 def main():
-    print("Hello from app!")
+    print("Hello from processor-service!")
 
 
 if __name__ == "__main__":
