@@ -1,0 +1,47 @@
+services:
+  alert-service:
+    build:
+      context: ./alert-service/app
+      dockerfile: Dockerfile
+    container_name: alert-service
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./alert-service/app/.env
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+
+  product-api:
+    build:
+      context: ./product-service/app
+      dockerfile: Dockerfile
+    container_name: product-api
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./product-service/app/.env
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s 
+        max_attempts: 5
+  subscription-api:
+    build:
+      context: ./subscription-service/app
+      dockerfile: Dockerfile
+    container_name: subscription-api
+    ports:
+      - "8003:8000"
+    env_file:
+      - ./subscription-service/app/.env
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
