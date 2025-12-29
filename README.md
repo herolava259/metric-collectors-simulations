@@ -13,3 +13,11 @@
 ### Architechtures
 
 ![Artchitechture](assets/Screenshot%202025-12-29%20092342.png)
+
+### Technologies
+- Fast-API
+- RabbitMQ
+- SQL-Lite (for demo)
+- PostgresQL
+- Telegram
+- nginx

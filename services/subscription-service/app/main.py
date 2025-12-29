@@ -10,6 +10,17 @@ from datetime import datetime
 from pydantic import BaseModel as DtoModel, Field as DtoField
 from enum import Enum 
 
+import psutil
+import threading
+import time
+import logging
+import os
+import httpx
+
+logger = logging.getLogger(__name__)
+INGESTION_ENDPOINT = os.getenv("INGESTION_ENDPOINT")
+DEVICE_ID = os.getenv("DEVICE_ID")
+
 class SubscriptionStatus(str, Enum):
     pending = "pending"
     active = "active"
@@ -40,14 +51,32 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
     async with async_session() as session:
         yield session
+def monitor_system():
+    try:
+        while True:
+            
+            cpu = psutil.cpu_percent(interval=1)
+            ram = psutil.virtual_memory().percent
+            
+            logger.log("--- System Monitor ---")
+            logger.log(f"CPU Usage: {cpu}%")
+            logger.log(f"RAM Usage: {ram}%")
+            logger.log("-" * 22)
 
+            httpx.post(INGESTION_ENDPOINT, json = {"device_id": DEVICE_ID, "metrics": {"cpu_usage": cpu, "ram_usage": ram},})
+            time.sleep(60)
+    except KeyboardInterrupt as err:
+        logger.LogError(err, "Error while sending metrics of the device")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # on start up
     await create_db_and_tables()
+    thread = threading.Thread(target=monitor_system, daemon=True)
+    thread.start()
     yield
     # on shutdown 
+    thread.join()
 
 class CreateSubscriptionRequest(DtoModel):
     name: str = DtoField(default="Home Basic", max_length=1024)
