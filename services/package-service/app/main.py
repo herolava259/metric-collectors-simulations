@@ -144,7 +144,6 @@ async def update(package_id: UUID, update_req: UpdatePackageRequest,  session: A
 
     if not row:
         raise HTTPException(status_code=404, detail="Package not found")
-    print("pass exist ******************************************************")
     record =  Package(**row._mapping)
     record.sqlmodel_update(update_req.model_dump())
 

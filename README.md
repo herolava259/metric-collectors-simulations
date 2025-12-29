@@ -10,3 +10,6 @@
 - The company's building monitoring system, collect cpu usages, ram usage, disk space...
 - Each services will send periodically the infromation to the monitoring system
 
+### Architechtures
+
+![Artchitechture](assets/Screenshot%202025-12-29%20092342.png)

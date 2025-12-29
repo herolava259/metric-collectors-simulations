@@ -84,6 +84,17 @@ services:
     depends_on:
       - db
       - rabbitmq
+  reverseproxy:
+    build:
+      context: infrastructures/nginx/
+      dockerfile: infrastructures/nginx/
+    container_name: nginxgateway
+    restart: on-failure
+    ports:
+      - "4344:44344"
+    depends_on:
+      - package-api
+      - subscription-api
     
 
 volumes:
