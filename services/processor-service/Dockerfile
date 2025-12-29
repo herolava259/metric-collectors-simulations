@@ -1,34 +1,24 @@
 
-FROM ghcr.io/astral-sh/uv:latest AS uv_setup
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS builder
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 
-WORKDIR /app
-
-
-COPY pyproject.toml ./
-
-RUN uv pip install --no-cache -r pyproject.toml --target /app/packages
-
-
-FROM python:3.11-slim
+ENV UV_PYTHON_DOWNLOADS=0
 
 WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project --no-dev
+ADD . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
 
-RUN apt-get update && apt-get install -y \
-    libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.11-slim-bookworm
 
-COPY --from=uv_setup /app/packages /usr/local/lib/python3.10/site-packages
+COPY --from=builder --chown=app:app /app /app
 
-COPY . .
+ENV PATH="/app/.venv/bin:$PATH"
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/usr/local/lib/python3.10/site-packages
-
-
-RUN adduser --disabled-password appuser
-USER appuser
-
-# Lệnh chạy Worker xử lý dữ liệu [cite: 15]
 CMD ["python", "main.py"]
