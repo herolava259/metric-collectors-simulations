@@ -1,12 +1,23 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Field, SQLModel, select
-from typing import Annotated, AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional
 from uuid import UUID, uuid4
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 import aiosqlite
+import psutil
+import threading
+import time
+import logging
+import os
+import httpx
 
 from pydantic import BaseModel as DtoModel, Field as DtoField
+
+logger = logging.getLogger(__name__)
+
+INGESTION_ENDPOINT = os.getenv("INGESTION_ENDPOINT")
+DEVICE_ID = os.getenv("DEVICE_ID")
 
 class Package(SQLModel, table=True):
     
@@ -35,13 +46,33 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         yield session
 
+def monitor_system():
+    try:
+        while True:
+            
+            cpu = psutil.cpu_percent(interval=1)
+            ram = psutil.virtual_memory().percent
+            
+            logger.log("--- System Monitor ---")
+            logger.log(f"CPU Usage: {cpu}%")
+            logger.log(f"RAM Usage: {ram}%")
+            logger.log("-" * 22)
+
+            httpx.post(INGESTION_ENDPOINT, json = {"device_id": DEVICE_ID, "metrics": {"cpu_usage": cpu, "ram_usage": ram},})
+            time.sleep(60)
+    except KeyboardInterrupt as err:
+        logger.LogError(err, "Error while sending metrics of the device")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # on start up
     await create_db_and_tables()
+    thread = threading.Thread(target=monitor_system, daemon=True)
+    thread.start()
     yield
     # on shutdown 
+    thread.join()
 
 
 #####
@@ -68,6 +99,7 @@ class UpdatePackageRequest(Package):
 
 class PackageDto(Package):
     pass
+
 
 
 app = FastAPI(lifespan=lifespan, title="package-api") 

@@ -25,6 +25,7 @@ class DeviceMetric(SQLModel, table=True):
     id: UUID =  Field(default_factory=uuid4, primary_key=True)
     device_id: str = Field(default="default")
     status: DeviceStatus = Field(default=DeviceStatus.Normal) 
+    metrics: str = Field(default="{}")
 
 async def initdb():
     async with async_engine.begin() as conn:
@@ -49,22 +50,29 @@ async def save_data(data: dict):
 
 def process_message(body):
     data = json.loads(body)
-    value = data['value']
+    metrics = data['metrics']
     device_id = data['device_id']
     
-    asyncio.run(save_data(body))
-    
-    if value >= 80:
-        status = "CRITICAL"
+    # ex alert with cpu_usage
+    if metrics["cpu_usage"] >= 80:
+        status = "critical"
         msg = (
             f"🚨 <b>Alert System</b> 🚨\n"
             f"Device: <code>{device_id}</code>\n"
             f"Info: {data['metric']}\n"
-            f"Value: <b>{value}%</b>\n"
+            f"Value: <b>{metrics["cpu_usage"]}%</b>\n"
             f"Status: {status}"
         )
         
         asyncio.run(send_alert_message(''.join(msg)))
+    elif metrics["cpu_usage"] >= 60:
+        status = "warning"
+    else:
+        status = "normal"
+    
+    body["status"] = status
+    asyncio.run(save_data(body))
+
 
 asyncio.run(initdb())
 

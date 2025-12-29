@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Field, SQLModel, select
-from typing import AsyncGenerator, Literal
+from typing import AsyncGenerator
 from uuid import UUID, uuid4
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
@@ -8,9 +8,6 @@ import sqlalchemy.dialects.sqlite
 from datetime import datetime
 
 from pydantic import BaseModel as DtoModel, Field as DtoField
-
-app = FastAPI()
-
 from enum import Enum 
 
 class SubscriptionStatus(str, Enum):
@@ -66,6 +63,8 @@ class UpdateSubscriptionRequest(Subscription):
 
 class SubscriptionDto(Subscription):
     pass
+
+app = FastAPI(lifespan=lifespan, title="subscription-api") 
 
 @app.post("/create", response_model=SubscriptionDto)
 async def create_package(req: CreateSubscriptionRequest, session: AsyncSession = Depends(get_session)):
