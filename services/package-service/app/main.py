@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
-from sqlmodel import Field, SQLModel, Session, select
+from sqlmodel import Field, SQLModel, select
 from typing import Annotated, AsyncGenerator, Optional
 from uuid import UUID, uuid4
 from contextlib import asynccontextmanager
@@ -9,6 +9,7 @@ import aiosqlite
 from pydantic import BaseModel as DtoModel, Field as DtoField
 
 class Package(SQLModel, table=True):
+    
     id: UUID =  Field(default_factory=uuid4, primary_key=True)
     name: str = Field(default="Home Basic", max_length=1024)
     speed_mbps: int = Field(default=50, ge=30, le=200)

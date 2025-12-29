@@ -8,7 +8,7 @@ services:
     ports:
       - "8002:8000"
     env_file:
-      - ./product-service/app/.env
+      - ./product-service/.env
     working_dir: /app
     volumes:
       - ./app/package:/app/app
@@ -30,7 +30,7 @@ services:
     ports:
       - "8003:8000"
     env_file:
-      - ./subscription-service/app/.env
+      - ./subscription-service/.env
     restart: on-failure
     deploy:
       restart_policy:
@@ -46,7 +46,6 @@ services:
       POSGRES_PASSWORD: $"{POSGRES_PASSWORD}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
     ports:
       - "5432:5432"
   rabbitmq:
@@ -63,7 +62,7 @@ services:
     ports:
       - "8001:8000"
     env_file:
-      - ./alert-service/app/.env
+      - ./alert-service/.env
     restart: on-failure
     deploy:
       restart_policy:
@@ -78,6 +77,10 @@ services:
       context: ./processor-service/
       dockerfile: Dockerfile
     container_name: processor-service
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./processor-service/.env
     depends_on:
       - db
       - rabbitmq
