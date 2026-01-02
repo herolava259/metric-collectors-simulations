@@ -26,7 +26,8 @@
 				"usernamehw.errorlens",
 				"christian-kohler.path-intellisense",
 				"damildrizzy.fastapi-snippets",
-				"tamasfe.even-better-toml"
+				"tamasfe.even-better-toml",
+				"qwtel.sqlite-viewer"
 			]
 		},
 		// "settings": {}
