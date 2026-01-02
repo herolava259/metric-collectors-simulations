@@ -52,6 +52,7 @@ def process_message(body):
     data = json.loads(body)
     metrics = data['metrics']
     device_id = data['device_id']
+    cpu_usage = data["cpu_usage"]
     
     # ex alert with cpu_usage
     if metrics["cpu_usage"] >= 80:
@@ -60,7 +61,7 @@ def process_message(body):
             f"🚨 <b>Alert System</b> 🚨\n"
             f"Device: <code>{device_id}</code>\n"
             f"Info: {data['metric']}\n"
-            f"Value: <b>{metrics["cpu_usage"]}%</b>\n"
+            f"Value: <b>{cpu_usage}%</b>\n"
             f"Status: {status}"
         )
         

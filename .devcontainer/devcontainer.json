@@ -25,7 +25,8 @@
 				"redhat.vscode-yaml",
 				"usernamehw.errorlens",
 				"christian-kohler.path-intellisense",
-				"damildrizzy.fastapi-snippets"
+				"damildrizzy.fastapi-snippets",
+				"tamasfe.even-better-toml"
 			]
 		},
 		// "settings": {}

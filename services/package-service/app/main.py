@@ -9,15 +9,13 @@ import psutil
 import threading
 import time
 import logging
-import os
 import httpx
+
+from config import GlobalSetting
 
 from pydantic import BaseModel as DtoModel, Field as DtoField
 
 logger = logging.getLogger(__name__)
-
-INGESTION_ENDPOINT = os.getenv("INGESTION_ENDPOINT")
-DEVICE_ID = os.getenv("DEVICE_ID")
 
 class Package(SQLModel, table=True):
     
@@ -58,7 +56,7 @@ def monitor_system():
             logger.log(f"RAM Usage: {ram}%")
             logger.log("-" * 22)
 
-            httpx.post(INGESTION_ENDPOINT, json = {"device_id": DEVICE_ID, "metrics": {"cpu_usage": cpu, "ram_usage": ram},})
+            httpx.post(GlobalSetting.INGESTION_ENDPOINT, json = {"device_id": GlobalSetting.DEVICE_ID, "metrics": {"cpu_usage": cpu, "ram_usage": ram},})
             time.sleep(60)
     except KeyboardInterrupt as err:
         logger.LogError(err, "Error while sending metrics of the device")

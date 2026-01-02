@@ -1,5 +1,4 @@
 services:
-
   package-api:
     build:
       context: ./package-service
@@ -48,14 +47,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - back-office
   rabbitmq:
     image: rabbitmq:3-management
     restart: always
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - back-office
 
-  ingestion-service:
+  ingestion-api:
     build:
       context: ./ingestion-service/
       dockerfile: Dockerfile
@@ -73,11 +76,13 @@ services:
     depends_on:
       - db 
       - rabbitmq
-  processor-service:
+    networks:
+      - back-office
+  processor-worker:
     build:
       context: ./processor-service/
       dockerfile: Dockerfile
-    container_name: processor-service
+    container_name: processor-worker
     ports:
       - "8002:8000"
     env_file:
@@ -85,11 +90,15 @@ services:
     depends_on:
       - db
       - rabbitmq
-  reverseproxy:
+    deploy:
+      replicas: 2
+    networks:
+      - back-office
+  reverse-proxy:
     build:
       context: infrastructures/nginx/
-      dockerfile: infrastructures/nginx/
-    container_name: nginxgateway
+      dockerfile: Dockerfile
+    container_name: reverse-proxy
     restart: on-failure
     ports:
       - "4344:44344"
@@ -100,3 +109,6 @@ services:
 
 volumes:
   postgres_data: {}
+
+networks:
+  back-office:
