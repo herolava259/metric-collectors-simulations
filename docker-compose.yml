@@ -21,6 +21,8 @@ services:
         condition: on-failure
         delay: 5s 
         max_attempts: 5
+    networks:
+      - shared-network
   subscription-api:
     build:
       context: ./subscription-service
@@ -37,7 +39,7 @@ services:
         delay: 5s
         max_attempts: 5
 
-  db:
+  rdbms:
     image: postgres:15
     environment:
       POSTGRES_DB: ${POSGRES_DB}
@@ -49,6 +51,24 @@ services:
       - "5432:5432"
     networks:
       - back-office
+      - pg-network
+  rdbms-ui:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: no 
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:- dff@email.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:- 1qaz2wsx3edc}
+    volumes:
+      - pgadmin_data:/root/.pgadmin
+    networks:
+      - pg-network
+    depends_on:
+      - rdbms
+      
+
   rabbitmq:
     image: rabbitmq:3-management
     restart: always
@@ -74,10 +94,11 @@ services:
         delay: 5s
         max_attempts: 5
     depends_on:
-      - db 
+      - rdbms
       - rabbitmq
     networks:
       - back-office
+      - shared-network
   processor-worker:
     build:
       context: ./processor-service/
@@ -88,7 +109,7 @@ services:
     env_file:
       - ./processor-service/.env
     depends_on:
-      - db
+      - rdbms
       - rabbitmq
     deploy:
       replicas: 2
@@ -105,6 +126,8 @@ services:
     depends_on:
       - package-api
       - subscription-api
+    networks:
+      - shared-network
   redis-cache:
     container_name: redis-cache
     image: redis:7.4.3-alpine
@@ -121,6 +144,19 @@ services:
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     environment:
       - REDIS_PASSWORD=$"{REDIS_PASSWORD:-1qaz2wsx3edc}"
+    networks:
+      - shared-network
+  redis-insight:
+    container_name: redis-insight
+    image: redislabs/redisinsight:latest
+    restart: no 
+    ports:
+      - "8001:8001"
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      - redis-cache
+
     
 
 volumes:
@@ -128,6 +164,14 @@ volumes:
   redis:
     driver: local
     external: false
+  redisinsight_data:
+    driver: local
+    external: true
 
 networks:
   back-office:
+    driver: bridge
+  shared-network:
+    external: true
+  pg-network:
+    driver: bridge

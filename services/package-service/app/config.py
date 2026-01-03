@@ -11,7 +11,12 @@ class AppConfig(BaseSettings):
     EXCLUSIVE_LOCK_KEY: str = Field(default="package-exclusive-key")
     ACQUIRE_LOCK_TIMEOUT: float = Field(default=60)
 
-    
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 
 
 GlobalSetting = AppConfig()
