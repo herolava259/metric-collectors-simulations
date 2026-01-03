@@ -105,10 +105,29 @@ services:
     depends_on:
       - package-api
       - subscription-api
+  redis-cache:
+    container_name: redis-cache
+    image: redis:7.4.3-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 1s 
+      timeout: 3s
+      retries: 5
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      - REDIS_PASSWORD=$"{REDIS_PASSWORD:-1qaz2wsx3edc}"
     
 
 volumes:
   postgres_data: {}
+  redis:
+    driver: local
+    external: false
 
 networks:
   back-office:
