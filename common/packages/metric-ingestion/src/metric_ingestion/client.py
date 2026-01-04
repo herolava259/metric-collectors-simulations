@@ -33,15 +33,17 @@ class MetricIngestionClient(object):
     
     
     async def metric_streaming(self):
-        def conditional_loop(count: int = 0):
+
+        counter = 0
+        def conditional_loop():
+            nonlocal counter
             continued = True
-            count += 1 
+            counter += 1 
             if not self.setting.sending_limit :
-                continued = count <= self.setting.sending_limit
+                continued = counter <= self.setting.sending_limit
             return continued and not self.stop_event.is_set()
         
-        counter = 0
-        while conditional_loop(counter):
+        while conditional_loop():
             yield self._retrieve_metric()
             #await asyncio.sleep()
             await asyncio.wait_for(self.stop_event.wait(), timeout=float(self.setting.interval_time.microseconds))
@@ -60,7 +62,6 @@ class MetricIngestionClient(object):
     
     async def stop_expose(self, ):
         self.stop_event.set()
-            
 
                 
 

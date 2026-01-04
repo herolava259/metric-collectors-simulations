@@ -13,8 +13,6 @@ def create_event_channel():
 
     return connection, channel 
 
-    
-    
 
 @app.post("/ingest/metrics", response_model=IngestionResponse)
 async def ingest_data(request: Request):

@@ -3,7 +3,7 @@
 ## I. Commands 
 
 - create project : `uv init <your-service>`
-- create lib: `uv init --lib  <your-lib-name>`
+- create lib: `uv init --lib  <path/your-lib-name>`
 - create lock: `uv lock`
 - view structure deps tree: `uv tree`
 - add your own packages:  `uv add <your-own-pkg-path> --package <your-own-service> --editable`

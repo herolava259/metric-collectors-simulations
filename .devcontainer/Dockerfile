@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
     git \
     bash \
     build-essential \
+    vim \
+    batcat \
  && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -s /bin/bash vscode
