@@ -14,3 +14,10 @@
 - minor version ex: 1.2.3 => 1.3.0: `uv version --bump minor`
     - beta: `uv version --bump patch --bump beta`
     - alpha: `uv version --bump major --bump alpha`
+- uv sync params:
+    - `--frozen` : no modified lockfile 
+    - `--no-install-project`: no install current project (app dir)
+    - `--no-dev` : no install tool in dev env such as like ruff, pytest, mypy,...
+    - `--locked`: install deps following by uv.lock, no change uv.lock
+    
+

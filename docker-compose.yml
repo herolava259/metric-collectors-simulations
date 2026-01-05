@@ -1,13 +1,13 @@
 services:
   package-api:
     build:
-      context: ./package-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: dockerfiles/packageservice.Dockerfile
     container_name: package-api
     ports:
       - "8002:8000"
     env_file:
-      - ./product-service/.env
+      - .services/product-service/.env
     working_dir: /app
     volumes:
       - ./app/package:/app/app
@@ -25,13 +25,13 @@ services:
       - shared-network
   subscription-api:
     build:
-      context: ./subscription-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: dockerfiles/subscriptionservice.Dockerfile
     container_name: subscription-api
     ports:
       - "8003:8000"
     env_file:
-      - ./subscription-service/.env
+      - .services/subscription-service/.env
     restart: on-failure
     deploy:
       restart_policy:
@@ -83,8 +83,8 @@ services:
 
   ingestion-api:
     build:
-      context: ./ingestion-service/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: dockerfiles/ingestionservice.Dockerfile
     container_name: ingestion-service
     ports:
       - "8001:8000"
@@ -104,8 +104,8 @@ services:
       - shared-network
   processor-worker:
     build:
-      context: ./processor-service/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: dockerfiles/processorworker.Dockerfile
     container_name: processor-worker
     ports:
       - "8002:8000"
@@ -149,6 +149,7 @@ services:
       - REDIS_PASSWORD=$"{REDIS_PASSWORD:-1qaz2wsx3edc}"
     networks:
       - shared-network
+      - redis-network
   redis-insight:
     container_name: redis-insight
     image: redislabs/redisinsight:latest
@@ -159,6 +160,8 @@ services:
       - redisinsight_data:/data
     depends_on:
       - redis-cache
+    networks:
+      - redis-network
 
     
 
@@ -177,4 +180,6 @@ networks:
   shared-network:
     external: true
   pg-network:
+    driver: bridge
+  redis-network:
     driver: bridge

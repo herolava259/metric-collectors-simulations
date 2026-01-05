@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+**/.venv/
+.git/
+**/__pycache__/
+*.pyc
+.uv/
+*.whl
+dist
+.vscode/
+.idea/
+**/.ruff_cache
+**/databse.db
+**/.example.env
