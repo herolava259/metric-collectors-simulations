@@ -19,8 +19,6 @@ COPY pyproject.toml .
 COPY ${LIB_PATH}/ ./${LIB_PATH}
 COPY ${SRC_PATH}/ ./${SRC_PATH}
 
-RUN ls -R
-
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package package-service
 # --frozen --no-dev --package package-service

@@ -12,17 +12,15 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=${SRC_PATH}/pyproject.toml,target=${SRC_PATH}/pyproject.toml \
     --mount=type=bind,source=${LIB_PATH}/metric-ingestion,target=${LIB_PATH}/metric-ingestion \
     --mount=type=bind,source=${LIB_PATH}/metric-ingestion-models,target=${LIB_PATH}/metric-ingestion-models \
-    uv sync --frozen --no-install-project --no-dev --no-install-workspace --package package-service
+    uv sync --frozen --no-install-project --no-dev --no-install-workspace --package subscription-service
 
 COPY uv.lock .
 COPY pyproject.toml .
 COPY ${LIB_PATH}/ ./${LIB_PATH}
 COPY ${SRC_PATH}/ ./${SRC_PATH}
 
-RUN ls -R
-
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --package package-service
+    uv sync --frozen --no-dev --package subscription-service
 # --frozen --no-dev --package package-service
 
 FROM python:3.11-slim-bookworm
